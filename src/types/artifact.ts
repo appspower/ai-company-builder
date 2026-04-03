@@ -10,6 +10,8 @@ export interface Artifact {
   fileType: FileType
   version: number
   status: ArtifactStatus
+  starred: boolean
+  content: string | null
   createdAt: string
   metadata: {
     llmModel: string
