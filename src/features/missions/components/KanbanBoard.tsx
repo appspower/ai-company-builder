@@ -3,8 +3,9 @@ import type { Mission, MissionStatus, MissionPriority, ApprovalMode } from '@/ty
 import { KanbanColumn } from './KanbanColumn'
 import { MISSION_STATUS_LABELS, MISSION_PRIORITY_LABELS, APPROVAL_MODE_LABELS } from '@/lib/constants'
 import { mockAgents } from '@/mocks/agents'
+import { mockDepartments } from '@/mocks/departments'
 
-export type GroupByMode = 'status' | 'priority' | 'agent' | 'approval'
+export type GroupByMode = 'status' | 'priority' | 'agent' | 'approval' | 'department'
 
 interface KanbanBoardProps {
   missions: Mission[]
@@ -53,6 +54,17 @@ function getColumns(groupBy: GroupByMode, missions: Mission[]): { key: string; l
       label: APPROVAL_MODE_LABELS[a],
       missions: missions.filter((m) => m.approvalMode === a),
     }))
+  }
+  if (groupBy === 'department') {
+    const deptIds = [...new Set(missions.map((m) => m.departmentId))]
+    return deptIds.map((deptId) => {
+      const dept = mockDepartments.find((d) => d.id === deptId)
+      return {
+        key: deptId,
+        label: dept?.name ?? '미지정',
+        missions: missions.filter((m) => m.departmentId === deptId),
+      }
+    })
   }
   if (groupBy === 'agent') {
     const agentIds = [...new Set(missions.flatMap((m) => m.assignedAgentIds))]

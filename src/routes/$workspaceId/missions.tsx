@@ -37,6 +37,7 @@ const QUICK_FILTERS: QuickFilter[] = [
 const GROUP_BY_OPTIONS: { mode: GroupByMode; label: string }[] = [
   { mode: 'status', label: '상태별' },
   { mode: 'priority', label: '우선순위별' },
+  { mode: 'department', label: '부서별' },
   { mode: 'agent', label: '담당직원별' },
   { mode: 'approval', label: '결재방식별' },
 ]
