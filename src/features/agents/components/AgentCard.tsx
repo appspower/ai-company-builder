@@ -23,7 +23,9 @@ export function AgentCard({ agent, onClick, onEdit, onDuplicate, onDelete }: Age
   return (
     <div
       onClick={onClick}
-      className="rounded-xl border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group relative"
+      className={`rounded-xl border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group relative ${
+        !agent.enabled ? 'opacity-50' : ''
+      }`}
     >
       {/* 컨텍스트 메뉴 */}
       <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">

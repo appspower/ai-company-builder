@@ -19,6 +19,13 @@ export interface KnowledgeDoc {
   uploadedAt: string
 }
 
+export interface AgentSkill {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
+
 export interface Agent {
   id: string
   workspaceId: string
@@ -28,6 +35,8 @@ export interface Agent {
   instructions: string
   llmModel: LlmModel
   knowledgeDocs: KnowledgeDoc[]
+  skills: AgentSkill[]
+  enabled: boolean
   status: AgentStatus
   statusMessage: string | null
   lastActivityAt: string

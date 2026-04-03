@@ -21,6 +21,7 @@ interface AgentStore {
     llmModel: LlmModel
   }) => void
   updateAgent: (id: string, updates: Partial<Agent>) => void
+  toggleEnabled: (id: string) => void
   duplicateAgent: (id: string) => void
   deleteAgent: (id: string) => void
 }
@@ -55,6 +56,8 @@ export const useAgentStore = create<AgentStore>((set) => ({
           id: `agent-${Date.now()}`,
           ...input,
           knowledgeDocs: [],
+          skills: [],
+          enabled: true,
           status: 'idle',
           statusMessage: null,
           lastActivityAt: '방금 전',
@@ -69,6 +72,13 @@ export const useAgentStore = create<AgentStore>((set) => ({
   updateAgent: (id, updates) =>
     set((state) => ({
       agents: state.agents.map((a) => (a.id === id ? { ...a, ...updates } : a)),
+    })),
+
+  toggleEnabled: (id) =>
+    set((state) => ({
+      agents: state.agents.map((a) =>
+        a.id === id ? { ...a, enabled: !a.enabled, status: !a.enabled ? 'idle' : a.status } : a
+      ),
     })),
 
   duplicateAgent: (id) =>

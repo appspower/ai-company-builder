@@ -3,8 +3,9 @@ import { useNavigate, useParams } from '@tanstack/react-router'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { ExternalLink, Pencil, X, FileText, Upload, Trash2, Loader2 } from 'lucide-react'
+import { ExternalLink, Pencil, X, FileText, Upload, Trash2, Loader2, MessageSquare, Power } from 'lucide-react'
 import type { Agent, Department, KnowledgeDoc } from '@/types/agent'
+import { toast } from 'sonner'
 import { AGENT_STATUS_COLORS, AGENT_STATUS_LABELS, LLM_MODEL_LABELS } from '@/lib/constants'
 import { mockMissions } from '@/mocks/missions'
 import type { Mission } from '@/types/mission'
@@ -24,12 +25,13 @@ interface AgentInlineDetailProps {
   department: Department | null
   onClose: () => void
   onEditClick: () => void
+  onToggleEnabled: () => void
 }
 
-export function AgentInlineDetail({ agent, department, onClose, onEditClick }: AgentInlineDetailProps) {
+export function AgentInlineDetail({ agent, department, onClose, onEditClick, onToggleEnabled }: AgentInlineDetailProps) {
   const navigate = useNavigate()
   const { workspaceId } = useParams({ strict: false }) as { workspaceId?: string }
-  const [activeSection, setActiveSection] = useState<'info' | 'instructions' | 'knowledge'>('info')
+  const [activeSection, setActiveSection] = useState<'info' | 'instructions' | 'skills' | 'knowledge'>('info')
 
   const statusColors = AGENT_STATUS_COLORS[agent.status]
 
@@ -50,7 +52,8 @@ export function AgentInlineDetail({ agent, department, onClose, onEditClick }: A
   const sectionTabs = [
     { id: 'info' as const, label: '기본 정보' },
     { id: 'instructions' as const, label: '업무 지침' },
-    { id: 'knowledge' as const, label: `참고 자료 (${agent.knowledgeDocs.length})` },
+    { id: 'skills' as const, label: `도구 (${agent.skills.length})` },
+    { id: 'knowledge' as const, label: `자료 (${agent.knowledgeDocs.length})` },
   ]
 
   return (
@@ -76,6 +79,30 @@ export function AgentInlineDetail({ agent, department, onClose, onEditClick }: A
           </div>
         </div>
         <p className="text-xs text-muted-foreground">{agent.role}</p>
+
+        {/* 액션 바: 활성 토글 + 테스트 대화 */}
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            onClick={onToggleEnabled}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              agent.enabled
+                ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            <Power className="w-3 h-3" />
+            {agent.enabled ? '활성' : '비활성'}
+          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs gap-1"
+            onClick={() => toast.info('테스트 대화는 Phase 2에서 연동됩니다.')}
+          >
+            <MessageSquare className="w-3 h-3" />
+            테스트 대화
+          </Button>
+        </div>
 
         {/* 탭 */}
         <div className="flex mt-3 -mb-[1px]">
@@ -208,6 +235,30 @@ export function AgentInlineDetail({ agent, department, onClose, onEditClick }: A
                 <Button variant="outline" size="sm" onClick={onEditClick}>
                   업무 지침 작성하기
                 </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===== 도구/스킬 ===== */}
+        {activeSection === 'skills' && (
+          <div>
+            {agent.skills.length > 0 ? (
+              <div className="space-y-2">
+                {agent.skills.map((skill) => (
+                  <div key={skill.id} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                    <span className="text-lg shrink-0 mt-0.5">{skill.icon}</span>
+                    <div>
+                      <p className="text-sm font-medium">{skill.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{skill.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground">할당된 도구가 없습니다.</p>
+                <p className="text-xs text-muted-foreground mt-1">Phase 2에서 도구를 추가할 수 있습니다.</p>
               </div>
             )}
           </div>

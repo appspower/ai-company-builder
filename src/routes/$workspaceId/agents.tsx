@@ -27,6 +27,7 @@ function AgentsPage() {
     addDepartment,
     addAgent,
     updateAgent,
+    toggleEnabled,
     duplicateAgent,
     deleteAgent,
   } = useAgentStore()
@@ -118,6 +119,10 @@ function AgentsPage() {
           onClose={() => selectAgent(null)}
           onEditClick={() => {
             setEditingAgentId(selectedAgent.id)
+          }}
+          onToggleEnabled={() => {
+            toggleEnabled(selectedAgent.id)
+            toast.success(selectedAgent.enabled ? '직원이 비활성화되었습니다.' : '직원이 활성화되었습니다.')
           }}
         />
       )}
