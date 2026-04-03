@@ -31,7 +31,7 @@ export function ExecutionDetailPanel({ execution, onClose }: ExecutionDetailPane
   const StatusIcon = config.icon
 
   return (
-    <div className="w-[380px] shrink-0 border-l bg-card overflow-y-auto h-full">
+    <div className="w-[400px] shrink-0 border-l bg-card overflow-y-auto h-full">
       <div className="px-5 pt-5 pb-3 sticky top-0 bg-card z-10 border-b">
         <div className="flex items-start justify-between gap-2 mb-2">
           <h2 className="text-base font-semibold leading-snug">{execution.stepName}</h2>
@@ -57,7 +57,7 @@ export function ExecutionDetailPanel({ execution, onClose }: ExecutionDetailPane
 
         {/* 실행 통계 */}
         <section>
-          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">실행 통계</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">실행 통계</h4>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border p-3 text-center">
               <Zap className="w-4 h-4 text-amber-500 mx-auto mb-1" />

@@ -126,7 +126,7 @@ export function AgentInlineDetail({ agent, department, onClose, onEditClick, onT
       <div className="px-5 py-4">
         {/* ===== 기본 정보 ===== */}
         {activeSection === 'info' && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* 현재 진행 작업 */}
             {activeMissions.length > 0 && (
               <div>

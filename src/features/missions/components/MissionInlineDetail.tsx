@@ -102,7 +102,7 @@ export function MissionInlineDetail({ mission, onClose, onApproveClick }: Missio
         {/* 설명 */}
         {mission.description && (
           <div>
-            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">설명</h4>
+            <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">설명</h4>
             <p className="text-sm">{mission.description}</p>
           </div>
         )}
