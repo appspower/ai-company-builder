@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { DepartmentList } from '@/features/agents/components/DepartmentList'
 import { AgentGrid } from '@/features/agents/components/AgentGrid'
+import { AgentInlineDetail } from '@/features/agents/components/AgentInlineDetail'
 import { AgentDetailPanel } from '@/features/agents/components/AgentDetailPanel'
 import { CreateAgentForm } from '@/features/agents/components/CreateAgentForm'
 import { useAgentStore } from '@/features/agents/store'
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/$workspaceId/agents')({
 function AgentsPage() {
   const { workspaceId } = useParams({ from: '/$workspaceId/agents' })
   const [createOpen, setCreateOpen] = useState(false)
+  const [editingAgentId, setEditingAgentId] = useState<string | null>(null)
 
   const {
     departments,
@@ -41,8 +43,13 @@ function AgentsPage() {
     ? wsDepartments.find((d) => d.id === selectedAgent.departmentId) ?? null
     : null
 
+  const editingAgent = editingAgentId ? wsAgents.find((a) => a.id === editingAgentId) ?? null : null
+  const editingAgentDept = editingAgent
+    ? wsDepartments.find((d) => d.id === editingAgent.departmentId) ?? null
+    : null
+
   const handleEdit = (agentId: string) => {
-    selectAgent(agentId)
+    setEditingAgentId(agentId)
   }
 
   const handleDuplicate = (agentId: string) => {
@@ -59,6 +66,7 @@ function AgentsPage() {
 
   return (
     <div className="flex h-[calc(100vh-0px)]">
+      {/* 부서 목록 */}
       <DepartmentList
         departments={wsDepartments}
         selectedId={selectedDepartmentId}
@@ -66,6 +74,7 @@ function AgentsPage() {
         onAdd={(name) => addDepartment(workspaceId, name)}
       />
 
+      {/* 에이전트 그리드 */}
       <div className="flex-1 p-6 overflow-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -101,15 +110,33 @@ function AgentsPage() {
         )}
       </div>
 
+      {/* 인라인 상세 패널 (읽기 모드) — 딤 없이 옆에 나란히 */}
+      {selectedAgent && (
+        <AgentInlineDetail
+          agent={selectedAgent}
+          department={selectedAgentDept}
+          onClose={() => selectAgent(null)}
+          onEditClick={() => {
+            setEditingAgentId(selectedAgent.id)
+          }}
+        />
+      )}
+
+      {/* 편집 모달 (Sheet — 편집 모드만) */}
       <AgentDetailPanel
-        agent={selectedAgent}
-        department={selectedAgentDept}
+        agent={editingAgent}
+        department={editingAgentDept}
         departments={wsDepartments}
-        open={!!selectedAgentId}
-        onClose={() => selectAgent(null)}
-        onUpdate={updateAgent}
+        open={!!editingAgentId}
+        onClose={() => setEditingAgentId(null)}
+        onUpdate={(id, updates) => {
+          updateAgent(id, updates)
+          setEditingAgentId(null)
+          toast.success('직원 정보가 저장되었습니다.')
+        }}
       />
 
+      {/* 에이전트 생성 폼 */}
       <CreateAgentForm
         open={createOpen}
         onClose={() => setCreateOpen(false)}
