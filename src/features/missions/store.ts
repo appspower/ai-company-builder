@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Mission, MissionStatus, MissionPriority } from '@/types/mission'
+import type { Mission, MissionStatus, MissionPriority, ApprovalMode } from '@/types/mission'
 import { mockMissions } from '@/mocks/missions'
 
 interface MissionStore {
@@ -17,7 +17,7 @@ interface MissionStore {
     departmentId: string
     priority: MissionPriority
     dueDate: string | null
-    requiresApproval: boolean
+    approvalMode: ApprovalMode
   }) => void
 }
 

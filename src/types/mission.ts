@@ -1,5 +1,6 @@
 export type MissionStatus = 'backlog' | 'in_progress' | 'review' | 'approval_pending' | 'completed'
 export type MissionPriority = 'urgent' | 'high' | 'medium' | 'low'
+export type ApprovalMode = 'auto' | 'final_only' | 'step_by_step'
 export type StepStatus = 'completed' | 'in_progress' | 'pending'
 
 export interface MissionStep {
@@ -21,7 +22,7 @@ export interface Mission {
   priority: MissionPriority
   progress: number | null
   progressLabel: string | null
-  requiresApproval: boolean
+  approvalMode: ApprovalMode
   createdAt: string
   dueDate: string | null
   completedAt: string | null

@@ -1,6 +1,6 @@
 import type { Mission } from '@/types/mission'
 import { Package, Clock, AlertTriangle } from 'lucide-react'
-import { MISSION_PRIORITY_COLORS, MISSION_PRIORITY_LABELS } from '@/lib/constants'
+import { MISSION_PRIORITY_COLORS, MISSION_PRIORITY_LABELS, APPROVAL_MODE_LABELS, APPROVAL_MODE_COLORS } from '@/lib/constants'
 import { mockDepartments } from '@/mocks/departments'
 
 interface MissionCardProps {
@@ -71,8 +71,10 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
               {mission.artifactCount}
             </span>
           )}
-          {mission.requiresApproval && (
-            <span className="text-[10px] px-1 py-0.5 rounded bg-primary/10 text-primary">결재</span>
+          {mission.approvalMode !== 'auto' && (
+            <span className={`text-[10px] px-1 py-0.5 rounded ${APPROVAL_MODE_COLORS[mission.approvalMode].bg} ${APPROVAL_MODE_COLORS[mission.approvalMode].text}`}>
+              {APPROVAL_MODE_LABELS[mission.approvalMode]}
+            </span>
           )}
         </div>
       </div>

@@ -1,4 +1,4 @@
-import type { MissionStatus, MissionPriority } from '@/types/mission'
+import type { MissionStatus, MissionPriority, ApprovalMode } from '@/types/mission'
 import type { AgentStatus } from '@/types/agent'
 import type { FileType } from '@/types/artifact'
 
@@ -30,6 +30,18 @@ export const MISSION_PRIORITY_COLORS: Record<MissionPriority, { dot: string; tex
   high: { dot: 'bg-orange-500', text: 'text-orange-500', bg: 'bg-orange-500/10' },
   medium: { dot: 'bg-blue-500', text: 'text-blue-500', bg: 'bg-blue-500/10' },
   low: { dot: 'bg-gray-400', text: 'text-gray-400', bg: 'bg-gray-400/10' },
+}
+
+export const APPROVAL_MODE_LABELS: Record<ApprovalMode, string> = {
+  auto: '자동 완료',
+  final_only: '최종 결재',
+  step_by_step: '단계별 결재',
+}
+
+export const APPROVAL_MODE_COLORS: Record<ApprovalMode, { dot: string; text: string; bg: string }> = {
+  auto: { dot: 'bg-green-500', text: 'text-green-600', bg: 'bg-green-500/10' },
+  final_only: { dot: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-500/10' },
+  step_by_step: { dot: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-500/10' },
 }
 
 export const AGENT_STATUS_LABELS: Record<AgentStatus, string> = {

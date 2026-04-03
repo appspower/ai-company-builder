@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Clock, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import type { Mission } from '@/types/mission'
-import { MISSION_STATUS_LABELS, MISSION_STATUS_COLORS, MISSION_PRIORITY_LABELS, MISSION_PRIORITY_COLORS, FILE_TYPE_ICONS } from '@/lib/constants'
+import { MISSION_STATUS_LABELS, MISSION_STATUS_COLORS, MISSION_PRIORITY_LABELS, MISSION_PRIORITY_COLORS, APPROVAL_MODE_LABELS, APPROVAL_MODE_COLORS, FILE_TYPE_ICONS } from '@/lib/constants'
 import { MissionTimeline } from './MissionTimeline'
 import { mockArtifacts } from '@/mocks/artifacts'
 import { mockAgents } from '@/mocks/agents'
@@ -47,9 +47,9 @@ export function MissionDetailPanel({ mission, open, onClose, onApprove, onReject
             <Badge variant="secondary" className={`${priorityColors.text} ${priorityColors.bg} border-0`}>
               {MISSION_PRIORITY_LABELS[mission.priority]}
             </Badge>
-            {mission.requiresApproval && (
-              <Badge variant="secondary" className="text-[10px]">결재 필요</Badge>
-            )}
+            <Badge variant="secondary" className={`text-[10px] ${APPROVAL_MODE_COLORS[mission.approvalMode].text} ${APPROVAL_MODE_COLORS[mission.approvalMode].bg} border-0`}>
+              {APPROVAL_MODE_LABELS[mission.approvalMode]}
+            </Badge>
           </div>
         </SheetHeader>
 
