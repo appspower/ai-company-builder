@@ -22,6 +22,7 @@ function ArtifactsPage() {
     filterAgentId,
     filterMissionId,
     sortBy,
+    groupBy,
     activeQuickFilters,
     selectArtifact,
     setViewMode,
@@ -31,6 +32,7 @@ function ArtifactsPage() {
     setFilterAgent,
     setFilterMission,
     setSortBy,
+    setGroupBy,
     toggleQuickFilter,
     toggleStarred,
   } = useArtifactStore()
@@ -61,6 +63,7 @@ function ArtifactsPage() {
           filterAgentId={filterAgentId}
           filterMissionId={filterMissionId}
           sortBy={sortBy}
+          groupBy={groupBy}
           activeQuickFilters={activeQuickFilters}
           onSearch={setSearchQuery}
           onFilterFileType={setFilterFileType}
@@ -68,6 +71,7 @@ function ArtifactsPage() {
           onFilterAgent={setFilterAgent}
           onFilterMission={setFilterMission}
           onSortBy={setSortBy}
+          onGroupBy={setGroupBy}
           onToggleQuickFilter={toggleQuickFilter}
           onViewMode={setViewMode}
           onArtifactClick={(id) => selectArtifact(id)}

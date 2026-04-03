@@ -3,6 +3,7 @@ import type { Artifact, FileType, ArtifactStatus } from '@/types/artifact'
 import { mockArtifacts } from '@/mocks/artifacts'
 
 export type ArtifactSortBy = 'name' | 'date' | 'status' | 'version'
+export type ArtifactGroupBy = 'none' | 'mission' | 'agent' | 'type'
 
 interface ArtifactStore {
   artifacts: Artifact[]
@@ -14,6 +15,7 @@ interface ArtifactStore {
   filterAgentId: string
   filterMissionId: string
   sortBy: ArtifactSortBy
+  groupBy: ArtifactGroupBy
   activeQuickFilters: Set<string>
 
   selectArtifact: (id: string | null) => void
@@ -24,6 +26,7 @@ interface ArtifactStore {
   setFilterAgent: (id: string) => void
   setFilterMission: (id: string) => void
   setSortBy: (sort: ArtifactSortBy) => void
+  setGroupBy: (group: ArtifactGroupBy) => void
   toggleQuickFilter: (id: string) => void
   toggleStarred: (id: string) => void
 }
@@ -38,6 +41,7 @@ export const useArtifactStore = create<ArtifactStore>((set) => ({
   filterAgentId: 'all',
   filterMissionId: 'all',
   sortBy: 'date',
+  groupBy: 'none',
   activeQuickFilters: new Set(),
 
   selectArtifact: (id) => set({ selectedArtifactId: id }),
@@ -48,6 +52,7 @@ export const useArtifactStore = create<ArtifactStore>((set) => ({
   setFilterAgent: (id) => set({ filterAgentId: id }),
   setFilterMission: (id) => set({ filterMissionId: id }),
   setSortBy: (sort) => set({ sortBy: sort }),
+  setGroupBy: (group) => set({ groupBy: group }),
   toggleQuickFilter: (id) =>
     set((state) => {
       const next = new Set(state.activeQuickFilters)

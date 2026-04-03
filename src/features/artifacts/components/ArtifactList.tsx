@@ -5,7 +5,7 @@ import type { Artifact, FileType, ArtifactStatus } from '@/types/artifact'
 import type { Agent } from '@/types/agent'
 import { FILE_TYPE_ICONS } from '@/lib/constants'
 import { mockMissions } from '@/mocks/missions'
-import type { ArtifactSortBy } from '@/features/artifacts/store'
+import type { ArtifactSortBy, ArtifactGroupBy } from '@/features/artifacts/store'
 
 const STATUS_LABELS: Record<ArtifactStatus, string> = {
   approval_pending: '승인 대기', review: '검토 중', completed: '완료', published: '게시 완료',
@@ -37,6 +37,7 @@ interface ArtifactListProps {
   filterAgentId: string
   filterMissionId: string
   sortBy: ArtifactSortBy
+  groupBy: ArtifactGroupBy
   activeQuickFilters: Set<string>
   onSearch: (q: string) => void
   onFilterFileType: (t: FileType | 'all') => void
@@ -44,6 +45,7 @@ interface ArtifactListProps {
   onFilterAgent: (id: string) => void
   onFilterMission: (id: string) => void
   onSortBy: (s: ArtifactSortBy) => void
+  onGroupBy: (g: ArtifactGroupBy) => void
   onToggleQuickFilter: (id: string) => void
   onViewMode: (m: 'list' | 'grid') => void
   onArtifactClick: (id: string) => void
@@ -52,8 +54,8 @@ interface ArtifactListProps {
 
 export function ArtifactList({
   artifacts, agents, viewMode, searchQuery,
-  filterFileType, filterStatus, filterAgentId, filterMissionId, sortBy, activeQuickFilters,
-  onSearch, onFilterFileType, onFilterMission, onSortBy, onToggleQuickFilter,
+  filterFileType, filterStatus, filterAgentId, filterMissionId, sortBy, groupBy, activeQuickFilters,
+  onSearch, onFilterFileType, onFilterMission, onSortBy, onGroupBy, onToggleQuickFilter,
   onViewMode, onArtifactClick, onToggleStarred,
 }: ArtifactListProps) {
   const getAgentName = (agentId: string) => agents.find((a) => a.id === agentId)?.name ?? '알 수 없음'
@@ -124,83 +126,131 @@ export function ArtifactList({
         </div>
       </div>
 
+      {/* Group By 버튼 바 */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+          {GROUP_BY_OPTIONS.map((opt) => (
+            <button key={opt.mode} onClick={() => onGroupBy(opt.mode)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${groupBy === opt.mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {filtered.length === 0 && (
         <div className="text-center py-16"><p className="text-muted-foreground text-sm">{artifacts.length === 0 ? '아직 산출물이 없습니다.' : '검색 조건에 맞는 산출물이 없습니다.'}</p></div>
       )}
 
-      {/* 리스트 뷰 */}
-      {filtered.length > 0 && viewMode === 'list' && (
-        <div className="rounded-xl border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="w-8 px-2 py-3"></th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('name')}>파일명 {sortBy === 'name' && '↓'}</th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground">직원</th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground">연결 미션</th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('version')}>버전 {sortBy === 'version' && '↓'}</th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('status')}>상태 {sortBy === 'status' && '↓'}</th>
-                <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('date')}>생성일 {sortBy === 'date' && '↓'}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((art) => (
-                <tr key={art.id} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer transition-colors">
-                  <td className="px-2 py-3">
-                    <button onClick={(e) => { e.stopPropagation(); onToggleStarred(art.id) }}
-                      className={`p-0.5 rounded ${art.starred ? 'text-amber-500' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}>
-                      <Star className={`w-3.5 h-3.5 ${art.starred ? 'fill-current' : ''}`} />
-                    </button>
-                  </td>
-                  <td className="px-3 py-3" onClick={() => onArtifactClick(art.id)}>
-                    <div className="flex items-center gap-2">
-                      <span>{FILE_TYPE_ICONS[art.fileType]}</span>
-                      <span className="font-medium truncate max-w-[220px]">{art.fileName}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}>{getAgentName(art.agentId)}</td>
-                  <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}>
-                    <span className="truncate block max-w-[180px]">{getMissionTitle(art.missionId)}</span>
-                  </td>
-                  <td className="px-3 py-3 text-muted-foreground font-mono" onClick={() => onArtifactClick(art.id)}>v{art.version}</td>
-                  <td className="px-3 py-3" onClick={() => onArtifactClick(art.id)}>
+      {/* 그룹별 렌더링 */}
+      {filtered.length > 0 && groupedSections(filtered, groupBy, getAgentName, getMissionTitle).map((section) => (
+        <div key={section.label} className="mb-6">
+          {groupBy !== 'none' && (
+            <div className="flex items-center gap-2 mb-2 pb-1 border-b">
+              <h3 className="text-sm font-semibold">{section.label}</h3>
+              <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">{section.items.length}</span>
+            </div>
+          )}
+
+          {viewMode === 'list' ? (
+            <div className="rounded-xl border overflow-hidden">
+              <table className="w-full text-sm">
+                {groupBy === 'none' && (
+                  <thead>
+                    <tr className="border-b bg-muted/30">
+                      <th className="w-8 px-2 py-3"></th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('name')}>파일명 {sortBy === 'name' && '↓'}</th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground">직원</th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground">연결 미션</th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('version')}>버전 {sortBy === 'version' && '↓'}</th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('status')}>상태 {sortBy === 'status' && '↓'}</th>
+                      <th className="text-left px-3 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => onSortBy('date')}>생성일 {sortBy === 'date' && '↓'}</th>
+                    </tr>
+                  </thead>
+                )}
+                <tbody>
+                  {section.items.map((art) => (
+                    <tr key={art.id} className="border-b last:border-0 hover:bg-muted/30 cursor-pointer transition-colors">
+                      <td className="px-2 py-3">
+                        <button onClick={(e) => { e.stopPropagation(); onToggleStarred(art.id) }}
+                          className={`p-0.5 rounded ${art.starred ? 'text-amber-500' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}>
+                          <Star className={`w-3.5 h-3.5 ${art.starred ? 'fill-current' : ''}`} />
+                        </button>
+                      </td>
+                      <td className="px-3 py-3" onClick={() => onArtifactClick(art.id)}>
+                        <div className="flex items-center gap-2"><span>{FILE_TYPE_ICONS[art.fileType]}</span><span className="font-medium truncate max-w-[220px]">{art.fileName}</span></div>
+                      </td>
+                      <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}>{getAgentName(art.agentId)}</td>
+                      <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}><span className="truncate block max-w-[180px]">{getMissionTitle(art.missionId)}</span></td>
+                      <td className="px-3 py-3 text-muted-foreground font-mono" onClick={() => onArtifactClick(art.id)}>v{art.version}</td>
+                      <td className="px-3 py-3" onClick={() => onArtifactClick(art.id)}>
+                        <div className="flex items-center gap-1.5"><span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[art.status]}`} /><span className="text-xs">{STATUS_LABELS[art.status]}</span></div>
+                      </td>
+                      <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}>{art.createdAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {section.items.map((art) => (
+                <div key={art.id} onClick={() => onArtifactClick(art.id)}
+                  className="rounded-xl border bg-card p-4 cursor-pointer hover:shadow-md transition-shadow relative group">
+                  <button onClick={(e) => { e.stopPropagation(); onToggleStarred(art.id) }}
+                    className={`absolute top-3 right-3 p-1 rounded opacity-0 group-hover:opacity-100 transition-all ${art.starred ? 'opacity-100 text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}>
+                    <Star className={`w-3.5 h-3.5 ${art.starred ? 'fill-current' : ''}`} />
+                  </button>
+                  <div className="text-3xl mb-3">{FILE_TYPE_ICONS[art.fileType]}</div>
+                  <p className="text-sm font-medium truncate">{art.fileName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{getAgentName(art.agentId)}</p>
+                  <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[art.status]}`} />
-                      <span className="text-xs">{STATUS_LABELS[art.status]}</span>
+                      <span className="text-xs text-muted-foreground">{STATUS_LABELS[art.status]}</span>
                     </div>
-                  </td>
-                  <td className="px-3 py-3 text-muted-foreground" onClick={() => onArtifactClick(art.id)}>{art.createdAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* 그리드 뷰 */}
-      {filtered.length > 0 && viewMode === 'grid' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {filtered.map((art) => (
-            <div key={art.id} onClick={() => onArtifactClick(art.id)}
-              className="rounded-xl border bg-card p-4 cursor-pointer hover:shadow-md transition-shadow relative group">
-              <button onClick={(e) => { e.stopPropagation(); onToggleStarred(art.id) }}
-                className={`absolute top-3 right-3 p-1 rounded opacity-0 group-hover:opacity-100 transition-all ${art.starred ? 'opacity-100 text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}>
-                <Star className={`w-3.5 h-3.5 ${art.starred ? 'fill-current' : ''}`} />
-              </button>
-              <div className="text-3xl mb-3">{FILE_TYPE_ICONS[art.fileType]}</div>
-              <p className="text-sm font-medium truncate">{art.fileName}</p>
-              <p className="text-xs text-muted-foreground mt-1">{getAgentName(art.agentId)}</p>
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[art.status]}`} />
-                  <span className="text-xs text-muted-foreground">{STATUS_LABELS[art.status]}</span>
+                    <span className="text-xs text-muted-foreground font-mono">v{art.version}</span>
+                  </div>
                 </div>
-                <span className="text-xs text-muted-foreground font-mono">v{art.version}</span>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+      ))}
     </div>
   )
+}
+
+// Group By 옵션
+const GROUP_BY_OPTIONS: { mode: ArtifactGroupBy; label: string }[] = [
+  { mode: 'none', label: '전체' },
+  { mode: 'mission', label: '미션별' },
+  { mode: 'agent', label: '직원별' },
+  { mode: 'type', label: '유형별' },
+]
+
+// 그룹핑 함수
+function groupedSections(
+  artifacts: Artifact[],
+  groupBy: ArtifactGroupBy,
+  getAgentName: (id: string) => string,
+  getMissionTitle: (id: string) => string,
+): { label: string; items: Artifact[] }[] {
+  if (groupBy === 'none') {
+    return [{ label: '', items: artifacts }]
+  }
+
+  const groups = new Map<string, Artifact[]>()
+
+  for (const art of artifacts) {
+    let key: string
+    if (groupBy === 'mission') key = getMissionTitle(art.missionId)
+    else if (groupBy === 'agent') key = getAgentName(art.agentId)
+    else key = FILE_TYPE_ICONS[art.fileType] + ' ' + ({ document: '문서', image: '이미지', video: '영상', spreadsheet: '스프레드시트', data: '데이터' }[art.fileType] ?? art.fileType)
+
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key)!.push(art)
+  }
+
+  return Array.from(groups.entries()).map(([label, items]) => ({ label, items }))
 }
