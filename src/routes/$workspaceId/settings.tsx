@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { Building2, Key, Bell, Trash2 } from 'lucide-react'
+import { Building2, Key, Users, BarChart3, Bell, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CompanyInfoForm } from '@/features/settings/components/CompanyInfoForm'
 import { ApiKeySettings } from '@/features/settings/components/ApiKeySettings'
+import { MemberSettings } from '@/features/settings/components/MemberSettings'
+import { UsageSettings } from '@/features/settings/components/UsageSettings'
 import { NotificationSettings } from '@/features/settings/components/NotificationSettings'
 import { useWorkspaceStore } from '@/features/workspace-lobby/store'
 import { toast } from 'sonner'
@@ -12,12 +14,14 @@ export const Route = createFileRoute('/$workspaceId/settings')({
   component: SettingsPage,
 })
 
-type SettingsTab = 'company' | 'apikeys' | 'notifications' | 'data'
+type SettingsTab = 'company' | 'apikeys' | 'members' | 'usage' | 'notifications' | 'data'
 
 const TABS: { id: SettingsTab; label: string; icon: typeof Building2 }[] = [
   { id: 'company', label: '회사 정보', icon: Building2 },
-  { id: 'apikeys', label: 'AI 엔진 설정', icon: Key },
-  { id: 'notifications', label: '알림 설정', icon: Bell },
+  { id: 'apikeys', label: 'AI 엔진', icon: Key },
+  { id: 'members', label: '멤버 관리', icon: Users },
+  { id: 'usage', label: '사용량', icon: BarChart3 },
+  { id: 'notifications', label: '알림', icon: Bell },
   { id: 'data', label: '데이터 관리', icon: Trash2 },
 ]
 
@@ -41,7 +45,7 @@ function SettingsPage() {
 
       <div className="flex gap-8">
         {/* 탭 네비게이션 */}
-        <nav className="w-48 shrink-0 space-y-1">
+        <nav className="w-44 shrink-0 space-y-1">
           {TABS.map((tab) => {
             const Icon = tab.icon
             return (
@@ -62,9 +66,11 @@ function SettingsPage() {
         </nav>
 
         {/* 탭 콘텐츠 */}
-        <div className="flex-1 max-w-xl">
+        <div className="flex-1 max-w-2xl">
           {activeTab === 'company' && <CompanyInfoForm workspace={workspace} />}
           {activeTab === 'apikeys' && <ApiKeySettings />}
+          {activeTab === 'members' && <MemberSettings />}
+          {activeTab === 'usage' && <UsageSettings />}
           {activeTab === 'notifications' && <NotificationSettings />}
           {activeTab === 'data' && (
             <div className="space-y-6">
@@ -79,11 +85,7 @@ function SettingsPage() {
                       <p className="text-sm font-medium">데이터 초기화</p>
                       <p className="text-xs text-muted-foreground">모든 미션과 산출물을 삭제합니다.</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toast.error('Phase 2에서 구현 예정입니다.')}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => toast.error('Phase 2에서 구현 예정입니다.')}>
                       초기화
                     </Button>
                   </div>
@@ -92,11 +94,7 @@ function SettingsPage() {
                       <p className="text-sm font-medium">회사 삭제</p>
                       <p className="text-xs text-muted-foreground">이 회사와 모든 데이터를 영구 삭제합니다.</p>
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => toast.error('Phase 2에서 구현 예정입니다.')}
-                    >
+                    <Button variant="destructive" size="sm" onClick={() => toast.error('Phase 2에서 구현 예정입니다.')}>
                       삭제
                     </Button>
                   </div>
