@@ -1,5 +1,7 @@
 import type { Mission } from '@/types/mission'
-import { Package } from 'lucide-react'
+import { Package, Clock, AlertTriangle } from 'lucide-react'
+import { MISSION_PRIORITY_COLORS, MISSION_PRIORITY_LABELS } from '@/lib/constants'
+import { mockDepartments } from '@/mocks/departments'
 
 interface MissionCardProps {
   mission: Mission
@@ -7,11 +9,31 @@ interface MissionCardProps {
 }
 
 export function MissionCard({ mission, onClick }: MissionCardProps) {
+  const dept = mockDepartments.find((d) => d.id === mission.departmentId)
+  const priorityColors = MISSION_PRIORITY_COLORS[mission.priority]
+  const isOverdue = mission.dueDate?.includes('4월 3') && mission.status !== 'completed'
+
   return (
     <div
       onClick={onClick}
       className="rounded-lg border bg-card p-3 cursor-pointer hover:shadow-md transition-shadow"
     >
+      {/* 상단: 우선순위 + 부서 */}
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <span className={`w-2 h-2 rounded-full ${priorityColors.dot}`} />
+          <span className={`text-[10px] font-medium ${priorityColors.text}`}>
+            {MISSION_PRIORITY_LABELS[mission.priority]}
+          </span>
+        </div>
+        {dept && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+            {dept.name}
+          </span>
+        )}
+      </div>
+
+      {/* 제목 */}
       <p className="text-sm font-medium line-clamp-2 mb-2">{mission.title}</p>
 
       {/* 진행률 바 */}
@@ -32,7 +54,16 @@ export function MissionCard({ mission, onClick }: MissionCardProps) {
 
       {/* 하단 메타 */}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{mission.createdAt}</span>
+        <div className="flex items-center gap-2">
+          <span>{mission.createdAt}</span>
+          {mission.dueDate && (
+            <span className={`flex items-center gap-0.5 ${isOverdue ? 'text-red-500 font-medium' : ''}`}>
+              {isOverdue && <AlertTriangle className="w-3 h-3" />}
+              <Clock className="w-3 h-3" />
+              {mission.dueDate}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {mission.artifactCount > 0 && (
             <span className="flex items-center gap-0.5">

@@ -1,4 +1,5 @@
 export type MissionStatus = 'backlog' | 'in_progress' | 'review' | 'approval_pending' | 'completed'
+export type MissionPriority = 'urgent' | 'high' | 'medium' | 'low'
 export type StepStatus = 'completed' | 'in_progress' | 'pending'
 
 export interface MissionStep {
@@ -17,10 +18,14 @@ export interface Mission {
   departmentId: string
   assignedAgentIds: string[]
   status: MissionStatus
+  priority: MissionPriority
   progress: number | null
   progressLabel: string | null
   requiresApproval: boolean
   createdAt: string
+  dueDate: string | null
+  completedAt: string | null
   artifactCount: number
+  rejectionFeedback: string | null
   steps: MissionStep[]
 }

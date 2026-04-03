@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { Department } from '@/types/agent'
+import type { MissionPriority } from '@/types/mission'
+import { MISSION_PRIORITY_LABELS, MISSION_PRIORITY_COLORS } from '@/lib/constants'
 
 interface CreateMissionFormProps {
   open: boolean
@@ -13,14 +15,20 @@ interface CreateMissionFormProps {
     title: string
     description: string
     departmentId: string
+    priority: MissionPriority
+    dueDate: string | null
     requiresApproval: boolean
   }) => void
 }
+
+const PRIORITY_OPTIONS: MissionPriority[] = ['urgent', 'high', 'medium', 'low']
 
 export function CreateMissionForm({ open, onClose, departments, onCreate }: CreateMissionFormProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [departmentId, setDepartmentId] = useState('')
+  const [priority, setPriority] = useState<MissionPriority>('medium')
+  const [dueDate, setDueDate] = useState('')
   const [requiresApproval, setRequiresApproval] = useState(true)
 
   const handleCreate = () => {
@@ -29,12 +37,11 @@ export function CreateMissionForm({ open, onClose, departments, onCreate }: Crea
       title: title.trim(),
       description: description.trim(),
       departmentId,
+      priority,
+      dueDate: dueDate || null,
       requiresApproval,
     })
-    setTitle('')
-    setDescription('')
-    setDepartmentId('')
-    setRequiresApproval(true)
+    setTitle(''); setDescription(''); setDepartmentId(''); setPriority('medium'); setDueDate(''); setRequiresApproval(true)
     onClose()
   }
 
@@ -69,18 +76,45 @@ export function CreateMissionForm({ open, onClose, departments, onCreate }: Crea
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium mb-2 block">담당 부서</label>
+              <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? '')}>
+                <SelectTrigger><SelectValue placeholder="부서 선택" /></SelectTrigger>
+                <SelectContent>
+                  {departments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">우선순위</label>
+              <Select value={priority} onValueChange={(v) => setPriority((v ?? 'medium') as MissionPriority)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PRIORITY_OPTIONS.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      <span className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${MISSION_PRIORITY_COLORS[p].dot}`} />
+                        {MISSION_PRIORITY_LABELS[p]}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div>
-            <label className="text-sm font-medium mb-2 block">담당 부서</label>
-            <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? '')}>
-              <SelectTrigger>
-                <SelectValue placeholder="부서를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium mb-2 block">
+              마감일 <span className="text-muted-foreground font-normal">(선택)</span>
+            </label>
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
 
           <div>

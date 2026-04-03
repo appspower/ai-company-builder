@@ -1,4 +1,4 @@
-import type { MissionStatus } from '@/types/mission'
+import type { MissionStatus, MissionPriority } from '@/types/mission'
 import type { AgentStatus } from '@/types/agent'
 import type { FileType } from '@/types/artifact'
 
@@ -16,6 +16,20 @@ export const MISSION_STATUS_COLORS: Record<MissionStatus, string> = {
   review: 'text-amber-500',
   approval_pending: 'text-primary',
   completed: 'text-green-500',
+}
+
+export const MISSION_PRIORITY_LABELS: Record<MissionPriority, string> = {
+  urgent: '긴급',
+  high: '높음',
+  medium: '보통',
+  low: '낮음',
+}
+
+export const MISSION_PRIORITY_COLORS: Record<MissionPriority, { dot: string; text: string; bg: string }> = {
+  urgent: { dot: 'bg-red-500', text: 'text-red-500', bg: 'bg-red-500/10' },
+  high: { dot: 'bg-orange-500', text: 'text-orange-500', bg: 'bg-orange-500/10' },
+  medium: { dot: 'bg-blue-500', text: 'text-blue-500', bg: 'bg-blue-500/10' },
+  low: { dot: 'bg-gray-400', text: 'text-gray-400', bg: 'bg-gray-400/10' },
 }
 
 export const AGENT_STATUS_LABELS: Record<AgentStatus, string> = {

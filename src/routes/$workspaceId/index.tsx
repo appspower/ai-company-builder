@@ -29,7 +29,7 @@ function DashboardPage() {
   }
 
   const handleReject = (id: string) => {
-    rejectMission(id)
+    rejectMission(id, '')
     toast.error('미션이 반려되었습니다.')
   }
 
